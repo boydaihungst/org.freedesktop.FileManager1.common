@@ -5,9 +5,17 @@ Based on [File Manager DBus Interface].
 
 ## Previews
 
-Firefox based browsers:
+I use yazi-wrapper.sh in demo.
 
-Chrome based browsers:
+- Firefox based browsers:
+
+![Recording 2025-03-14 at 03 28 21](https://github.com/user-attachments/assets/f8e78078-ffe6-4fc3-834b-57fe64f54cae)
+
+
+- Chrome based browsers:
+
+![Recording 2025-03-14 at 03 30 17](https://github.com/user-attachments/assets/095aeb4c-4b92-4a41-a90e-6c0b2b96c3cc)
+
 
 ## Installation
 
