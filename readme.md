@@ -11,11 +11,9 @@ I use yazi-wrapper.sh in demo.
 
 ![Recording 2025-03-14 at 03 28 21](https://github.com/user-attachments/assets/f8e78078-ffe6-4fc3-834b-57fe64f54cae)
 
-
 - Chrome based browsers:
 
 ![Recording 2025-03-14 at 03 30 17](https://github.com/user-attachments/assets/095aeb4c-4b92-4a41-a90e-6c0b2b96c3cc)
-
 
 ## Installation
 
@@ -118,9 +116,9 @@ ShowItemProperties:
 
 #### Troubleshooting
 
-- After editing termfilechooser's config, restart its service. Check #restart-service section
+- After editing config file, restart its service. Check #restart-service section
 
-- The this app can also be lauch without systemd:
+- This app can also be lauch without systemd:
 
       dbus-send --dest=org.freedesktop.FileManager1 --print-reply /org/freedesktop/FileManager1 org.freedesktop.FileManager1.Exit
       /usr/local/libexec/file_manager_dbus
@@ -130,13 +128,13 @@ ShowItemProperties:
       dbus-send --dest=org.freedesktop.FileManager1 --print-reply /org/freedesktop/FileManager1 org.freedesktop.FileManager1.Exit
       /usr/lib64//usr/local/libexec/file_manager_dbus
 
-  This way the output from the wrapper scripts (e.g. `ranger-wrapper.sh`) will be written to the same terminal. This is handy for debugging custom wrapper.
+  This way the output from the wrapper scripts (e.g. `ranger-wrapper.sh`) will be written to the terminal. This is handy for debugging custom wrapper.
 
 ## Usage
 
-Firefox based browsers have a setting in its `about:config` to always use dbus file manager: set `widget.use-xdg-desktop-portal.open-uri` to `1`, if `2` also work.
+Firefox based browsers have a setting in `about:config` to always use dbus file manager: set `widget.use-xdg-desktop-portal.open-uri` to `1`, default = `2` also work.
 
-Open Download manager -> press `Show in folder` icon
+Open Download manager panel -> press `Show in folder` icon
 
 Chromium based browser Open Download manager (Ctrl + J) -> press `Show in folder` icon
 
