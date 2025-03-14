@@ -212,7 +212,7 @@ int main(void) {
   signal(SIGTERM, handle_sigterm);
   signal(SIGINT, handle_sigterm);
 
-  char *cmd = read_config("cmd");
+  char *cmd = read_config("cmd", true);
   if (cmd != NULL) {
     printf("cmd: %s\n", cmd);
   } else {
@@ -296,6 +296,7 @@ int main(void) {
       fprintf(stderr, "Failed to wait: %s\n", strerror(-r));
       break;
     }
+    sd_bus_flush(bus);
   }
 
   printf("Exiting...\n");

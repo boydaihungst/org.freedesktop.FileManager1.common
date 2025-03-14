@@ -1,29 +1,34 @@
 #include "config.h"
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <wordexp.h>
 
-#define CONFIG_FILE_NAME ".config/org.freedesktop.FileManager1.common/config"
+#define CONFIG_FILE_NAME                                                       \
+  "$HOME/.config/org.freedesktop.FileManager1.common/config"
 #define INITIAL_BUFFER_SIZE 1024
 
-char *read_config(const char *key) {
-  // Replace $HOME with the actual home directory
-  char *home_dir = getenv("HOME");
-  if (home_dir == NULL) {
-    fprintf(stderr, "Failed to get HOME directory\n");
-    return NULL;
+static char *expand_env(const char *input) {
+  wordexp_t p;
+  if (wordexp(input, &p, 0) != 0) {
+    return strdup(input); // Return original if expansion fails
   }
+  char *expanded = strdup(p.we_wordv[0]);
+  wordfree(&p);
+  return expanded;
+}
 
-  // Construct the path to the config file
-  char *config_file_path =
-      malloc(strlen(home_dir) + strlen(CONFIG_FILE_NAME) + 2);
+char *read_config(const char *key, const bool is_path) {
+  char *expanded_cmd = expand_env(CONFIG_FILE_NAME);
+  char *config_file_path = strdup(expanded_cmd);
+  free(expanded_cmd);
+
   if (config_file_path == NULL) {
     fprintf(stderr, "Memory allocation failed\n");
     return NULL;
   }
-  snprintf(config_file_path, strlen(home_dir) + strlen(CONFIG_FILE_NAME) + 2,
-           "%s/%s", home_dir, CONFIG_FILE_NAME);
 
   // Open the config file
   FILE *config_file = fopen(config_file_path, "r");
@@ -91,24 +96,11 @@ char *read_config(const char *key) {
         }
         strcpy(value, equals_sign + 1);
 
-        // Replace $HOME with the actual home directory in the value
-        char *home_dir_in_value = strstr(value, "$HOME");
-        if (home_dir_in_value != NULL) {
-          char *new_value =
-              malloc(strlen(home_dir) + strlen(value) - strlen("$HOME") + 1);
-          if (new_value == NULL) {
-            fprintf(stderr, "Memory allocation failed\n");
-            free(value);
-            free(line);
-            fclose(config_file);
-            free(config_file_path);
-            return NULL;
-          }
-          snprintf(new_value,
-                   strlen(home_dir) + strlen(value) - strlen("$HOME") + 1,
-                   "%s%s", home_dir, value + strlen("$HOME"));
+        if (is_path) {
+          char *expanded_cmd = expand_env(value);
           free(value);
-          value = new_value;
+          value = strdup(expanded_cmd);
+          free(expanded_cmd);
         }
       }
       break;
