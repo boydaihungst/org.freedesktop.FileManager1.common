@@ -20,22 +20,24 @@ I use yazi-wrapper.sh in demo.
 ### Dependencies
 
 Install the required packages. On apt-based systems:
+
 Notes:
 
-    If your system uses `systemd`, `libsystemd-dev` should be sufficient.
-    If your system uses `elogind` instead of `systemd`, `libelogind-dev` is needed.
-    If neither `systemd` nor `elogind` is available, `libbasu-dev` is a fallback.
+- If your system uses `systemd`, `libsystemd-dev` should be sufficient.
+- If your system uses `elogind` instead of `systemd`, `libelogind-dev` is needed.
+- If neither `systemd` nor `elogind` is available, `libbasu-dev` is a fallback.
 
-    sudo apt install meson ninja-build gcc pkg-config libdbus-1-dev libsystemd-dev libelogind-dev libbasu-dev glib2.0-utils
+`sudo apt install meson ninja-build gcc pkg-config libdbus-1-dev libsystemd-dev libelogind-dev libbasu-dev glib2.0-utils`
 
 For Arch:
 
 Notes:
 
-    If your system uses `elogind` instead of `systemd`, `elogind` is needed.
-    If neither systemd nor `basu` is available, `basu` is a fallback.
-    If you're running a minimal Arch system and encounter missing headers, you might also need `base-devel`:
-    sudo pacman -S meson ninja gcc pkgconf dbus systemd glib2
+- If your system uses `elogind` instead of `systemd`, `elogind` is needed.
+- If neither systemd nor `basu` is available, `basu` is a fallback.
+- If you're running a minimal Arch system and encounter missing headers, you might also need `base-devel`:
+
+`sudo pacman -S meson ninja gcc pkgconf dbus systemd glib2`
 
 For other distro: please paste meson.build's content into Chatgpt and ask: `What libs for this meson.build file: `
 
