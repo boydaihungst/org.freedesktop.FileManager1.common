@@ -1,7 +1,7 @@
 # org.freedesktop.FileManager1.common
 
-[org.freedesktop.FileManager1] File Manager DBus Interface open file manager and hover over files.
-Based on [File Manager DBus Interface].
+Using File Manager DBus Interface to open file manager and hover over file(s)/folder(s).
+Based on [File Manager DBus Interface](https://www.freedesktop.org/wiki/Specifications/file-manager-interface/).
 
 ## Previews
 
