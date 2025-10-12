@@ -98,7 +98,7 @@ ShowFolders:
           --dest org.freedesktop.FileManager1 \
           --object-path /org/freedesktop/FileManager1 \
           --method org.freedesktop.FileManager1.ShowFolders \
-          "[\"file://~/Videos\", \"file://~Downloads\"]"
+          "[\"file://~/Videos\", \"file://~/Downloads\"]"
 
 ShowItems:
 
@@ -106,7 +106,7 @@ ShowItems:
           --dest org.freedesktop.FileManager1 \
           --object-path /org/freedesktop/FileManager1 \
           --method org.freedesktop.FileManager1.ShowItems \
-          "[\"file://~/Videos/sample_file.txt\", \"file://~Downloads/sample_file2.txt\"]"
+          "[\"file://~/Videos/sample_file.txt\", \"file://~/Downloads/sample_file2.txt\"]"
 
 ShowItemProperties:
 
@@ -114,7 +114,7 @@ ShowItemProperties:
           --dest org.freedesktop.FileManager1 \
           --object-path /org/freedesktop/FileManager1 \
           --method org.freedesktop.FileManager1.ShowItemProperties \
-          "[\"file://~/Videos/sample_file.txt\", \"file://~Downloads/sample_file2.txt\"]"
+          "[\"file://~/Videos/sample_file.txt\", \"file://~/Downloads/sample_file2.txt\"]"
 
 #### Troubleshooting
 
