@@ -20,18 +20,18 @@ add_project_arguments('-DSYSCONFDIR="@0@"'.format(join_paths(prefix, sysconfdir)
 dbus_dep = dependency('dbus-1', required: true)
 if get_option('sd-bus-provider') == 'auto'
     sdbus = dependency('libsystemd',
-        required: true,
+        required: false,
         not_found_message: 'libsystemd not found, trying libelogind',
     )
     if not sdbus.found()
         sdbus = dependency('libelogind',
-            required: true,
+            required: false,
             not_found_message: 'libelogind not found, trying basu',
         )
     endif
     if not sdbus.found()
         sdbus = dependency('basu',
-            required: true,
+            required: false,
         )
     endif
     if not sdbus.found()
