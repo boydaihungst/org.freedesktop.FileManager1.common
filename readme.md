@@ -74,7 +74,7 @@ export TERMCMD="wezterm start --always-new-process"
 cmd=/usr/local/share/org.freedesktop.FileManager1.common/ranger-wrapper.sh
 ```
 
-### Restart service
+### Start and Restart systemd service
 
 NOTE: You don't need to enable or start dbus sevice.
 
@@ -87,6 +87,26 @@ Exit the `org.freedesktop.FileManager1` service:
     > [!NOTE]
     > gdbus need glib2:
     gdbus call --session --dest org.freedesktop.FileManager1 --object-path /org/freedesktop/FileManager1 --method org.freedesktop.FileManager1.Exit
+
+### Start and Restart Without Systemd (elogind or basu)
+
+The binary file can run like a normal cli app. It's either in `/usr/local/libexec` or `/usr/libexec`.
+
+Run `/usr/local/libexec/file_manager_dbus & && disown` directly in .bashrc or .zshrc or whatever shell you use.
+
+Or run directly via window manager:
+
+- sway:
+
+  ```sh
+  exec /usr/local/libexec/file_manager_dbus
+  ```
+
+- hyprland:
+
+  ```sh
+  exec-once = /usr/local/libexec/file_manager_dbus
+  ```
 
 ### Test
 
