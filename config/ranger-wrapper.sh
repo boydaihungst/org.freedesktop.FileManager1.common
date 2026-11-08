@@ -20,30 +20,32 @@ if [ "$TERMCMD" == "_null_" ]; then
   unset TERMCMD
 fi
 shift 2 # skip BDUS_METHOD and TERMCMD
-declare -a item
 
 quote_string() {
   local input="$1"
   echo "'${input//\'/\'\\\'\'}'"
 }
 
-for arg in "$@"; do
-  decoded_arg=$(printf '%b' "${arg//%/\\x}")
-  item+=("$(quote_string "$decoded_arg")")
-done
-
 cmd="/usr/bin/ranger"
 termcmd="${TERMCMD:-/usr/bin/kitty --class ranger --}"
 
 case "$BDUS_METHOD" in
-# Since ranger can handle both files, folders
+# Since ranger can only handle 1 file or folder. Old ranger can handle multiple files
 "ShowFolders" | "ShowItems")
-  eval "$termcmd $cmd ${item[@]}" &
+  for file in "$@"; do
+    decoded_arg=$(printf '%b' "${file//%/\\x}")
+    eval "$termcmd $cmd --selectfile=$(quote_string "$decoded_arg")" &
+    disown
+  done
   disown
   ;;
 # ranger don't have spotter like yazi
 "ShowItemProperties")
-  eval "$termcmd $cmd ${item[@]}" &
+  for file in "$@"; do
+    decoded_arg=$(printf '%b' "${file//%/\\x}")
+    eval "$termcmd $cmd --selectfile=$(quote_string "$decoded_arg")" &
+    disown
+  done
   disown
   ;;
 esac
