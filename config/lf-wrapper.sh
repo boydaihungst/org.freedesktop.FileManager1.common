@@ -11,7 +11,11 @@
 # Read more here: https://www.freedesktop.org/wiki/Specifications/file-manager-interface/
 
 BDUS_METHOD="$1"
-shift 1 # skip BDUS_METHOD
+TERMCMD=${TERMCMD:-$2}
+if [ "$TERMCMD" == "_null_" ]; then
+  unset TERMCMD
+fi
+shift 2 # skip BDUS_METHOD and TERMCMD
 
 quote_string() {
   local input="$1"
@@ -19,13 +23,13 @@ quote_string() {
 }
 
 cmd="/usr/bin/lf"
-termcmd="${TERMCMD:-/usr/bin/kitty --class lf}"
+termcmd="${TERMCMD:-/usr/bin/kitty --class lf --}"
 case "$BDUS_METHOD" in
 # Since lf can only handle 1 file or folder.
 "ShowFolders" | "ShowItems")
   for file in "$@"; do
     decoded_arg=$(printf '%b' "${file//%/\\x}")
-    eval "$termcmd -- $cmd $(quote_string "$decoded_arg")" &
+    eval "$termcmd $cmd $(quote_string "$decoded_arg")" &
     disown
   done
   ;;
@@ -33,7 +37,7 @@ case "$BDUS_METHOD" in
 "ShowItemProperties")
   for file in "$@"; do
     decoded_arg=$(printf '%b' "${file//%/\\x}")
-    eval "$termcmd -- $cmd $(quote_string "$decoded_arg")" &
+    eval "$termcmd $cmd $(quote_string "$decoded_arg")" &
     disown
   done
   ;;

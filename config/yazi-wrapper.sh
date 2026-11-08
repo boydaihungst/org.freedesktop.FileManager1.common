@@ -11,7 +11,11 @@
 # Read more here: https://www.freedesktop.org/wiki/Specifications/file-manager-interface/
 
 BDUS_METHOD="$1"
-shift 1 # skip BDUS_METHOD
+TERMCMD=${TERMCMD:-$2}
+if [ "$TERMCMD" == "_null_" ]; then
+  unset TERMCMD
+fi
+shift 2 # skip BDUS_METHOD and TERMCMD
 declare -a item
 
 quote_string() {
@@ -26,17 +30,17 @@ for arg in "$@"; do
 done
 
 cmd="/usr/bin/yazi"
-termcmd="${TERMCMD:-/usr/bin/kitty --class yazi}"
+termcmd="${TERMCMD:-/usr/bin/kitty --class yazi --}"
 
 case "$BDUS_METHOD" in
 # Since yazi can handle both files, folders
 "ShowFolders" | "ShowItems")
-  eval "$termcmd -- $cmd ${item[@]}" &
+  eval "$termcmd $cmd ${item[@]}" &
   disown
   ;;
 "ShowItemProperties")
   YAZI_ID=999999
-  eval "$termcmd -- $cmd --client-id $YAZI_ID ${item[@]}" &
+  eval "$termcmd $cmd --client-id $YAZI_ID ${item[@]}" &
   disown
   # Increase this if yazi take too long to load
   sleep 0.5

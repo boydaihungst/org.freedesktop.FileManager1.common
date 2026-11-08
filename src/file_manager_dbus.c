@@ -1,5 +1,4 @@
 #include <config.h>
-#include <errno.h>
 #include <file_manager_dbus.h>
 #include <signal.h>
 #include <stdbool.h>
@@ -21,12 +20,15 @@ static volatile bool keep_running = true;
 
 void handle_sigterm(int sig) { keep_running = false; }
 
-static void open_file_manager(const char *cmd, char **uri_array,
+static void open_file_manager(Config *config, char **uri_array,
                               size_t uri_count, const char *bus_method) {
+  char *cmd = config->cmd;
+  char *term_cmd = config->term_cmd;
+
   printf("Opening file manager with method: %s\n", bus_method);
 
   // Allocate space for arguments: cmd + bus_method + uris + NULL
-  size_t arg_count = 2 + uri_count + 1; // cmd, bus_method, uris[], NULL
+  size_t arg_count = 3 + uri_count + 1; // cmd, bus_method, uris[], NULL
   char **args = malloc(arg_count * sizeof(char *));
   if (!args) {
     perror("malloc failed");
@@ -34,8 +36,9 @@ static void open_file_manager(const char *cmd, char **uri_array,
   }
 
   // Set up the argument list
-  args[0] = (char *)cmd;        // First argument: the command itself
-  args[1] = (char *)bus_method; // Second argument: bus_method
+  args[0] = (char *)cmd;
+  args[1] = (char *)bus_method;
+  args[2] = (char *)term_cmd ? term_cmd : "_null_";
 
   for (size_t i = 0; i < uri_count; i++) {
     const char *prefix = "file://";
@@ -46,7 +49,7 @@ static void open_file_manager(const char *cmd, char **uri_array,
     }
 
     // args[2 + i] = escape_uri(path); // Add each URI to the argument list
-    args[2 + i] = (char *)path; // Add each URI to the argument list
+    args[3 + i] = (char *)path; // Add each URI to the argument list
   }
 
   args[arg_count - 1] = NULL; // NULL terminate the argument array
@@ -169,7 +172,8 @@ void free_string_array(char **uris, size_t count) {
 
 static int handle_bus_message(sd_bus_message *m, void *userdata,
                               sd_bus_error *error) {
-  char *cmd = (char *)userdata;
+  Config *config = userdata;
+
   const char *method = sd_bus_message_get_member(m);
 
   if (strcmp(method, "ShowFolders") == 0 || strcmp(method, "ShowItems") == 0 ||
@@ -192,7 +196,7 @@ static int handle_bus_message(sd_bus_message *m, void *userdata,
     }
 
     if (r == 0) {
-      open_file_manager(cmd, uri_array, uri_count, method);
+      open_file_manager(config, uri_array, uri_count, method);
       free_string_array(uri_array, uri_count);
     } else {
       fprintf(stderr, "Failed to read URIs\n");
@@ -212,9 +216,13 @@ int main(void) {
   signal(SIGTERM, handle_sigterm);
   signal(SIGINT, handle_sigterm);
 
-  char *cmd = read_config("cmd", true);
-  if (cmd != NULL) {
-    printf("cmd: %s\n", cmd);
+  Config config = {
+      .cmd = read_config("cmd", true),
+      .term_cmd = read_config("TERMCMD", false),
+  };
+
+  if (config.cmd != NULL) {
+    printf("cmd: %s\n", config.cmd);
   } else {
     printf("Failed to read config\n");
     goto clean;
@@ -236,7 +244,7 @@ int main(void) {
       bus, &slot1,
       "type='method_call',interface='org.freedesktop.FileManager1',member='"
       "ShowFolders',path='/org/freedesktop/FileManager1'",
-      handle_bus_message, cmd);
+      handle_bus_message, &config);
   if (r < 0) {
     fprintf(stderr, "Failed to add match for ShowFolders: %s\n", strerror(-r));
     goto fail;
@@ -246,7 +254,7 @@ int main(void) {
       bus, &slot2,
       "type='method_call',interface='org.freedesktop.FileManager1',member='"
       "ShowItems',path='/org/freedesktop/FileManager1'",
-      handle_bus_message, cmd);
+      handle_bus_message, &config);
   if (r < 0) {
     fprintf(stderr, "Failed to add match for ShowItems: %s\n", strerror(-r));
     goto fail;
@@ -256,7 +264,7 @@ int main(void) {
       bus, &slot3,
       "type='method_call',interface='org.freedesktop.FileManager1',member='"
       "ShowItemProperties',path='/org/freedesktop/FileManager1'",
-      handle_bus_message, cmd);
+      handle_bus_message, &config);
   if (r < 0) {
     fprintf(stderr, "Failed to add match for ShowItemProperties: %s\n",
             strerror(-r));
@@ -267,7 +275,7 @@ int main(void) {
       bus, &slot4,
       "type='method_call',interface='org.freedesktop.FileManager1',member='"
       "Exit',path='/org/freedesktop/FileManager1'",
-      handle_bus_message, cmd);
+      handle_bus_message, &config);
   if (r < 0) {
     fprintf(stderr, "Failed to add match for Exit: %s\n", strerror(-r));
     goto fail;
@@ -309,6 +317,7 @@ fail:
   sd_bus_unref(bus);
   goto clean;
 clean:
-  free(cmd);
+  free(config.cmd);
+  free(config.term_cmd);
   return 0;
 }

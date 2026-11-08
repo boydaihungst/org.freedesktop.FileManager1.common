@@ -15,7 +15,11 @@
 
 # Since ranger can handle multiple files or folders, we don't need to care about BDUS_METHOD
 BDUS_METHOD="$1"
-shift 1 # skip BDUS_METHOD
+TERMCMD=${TERMCMD:-$2}
+if [ "$TERMCMD" == "_null_" ]; then
+  unset TERMCMD
+fi
+shift 2 # skip BDUS_METHOD and TERMCMD
 declare -a item
 
 quote_string() {
@@ -29,17 +33,17 @@ for arg in "$@"; do
 done
 
 cmd="/usr/bin/ranger"
-termcmd="${TERMCMD:-/usr/bin/kitty --class ranger}"
+termcmd="${TERMCMD:-/usr/bin/kitty --class ranger --}"
 
 case "$BDUS_METHOD" in
 # Since ranger can handle both files, folders
 "ShowFolders" | "ShowItems")
-  eval "$termcmd -- $cmd ${item[@]}" &
+  eval "$termcmd $cmd ${item[@]}" &
   disown
   ;;
 # ranger don't have spotter like yazi
 "ShowItemProperties")
-  eval "$termcmd -- $cmd ${item[@]}" &
+  eval "$termcmd $cmd ${item[@]}" &
   disown
   ;;
 esac

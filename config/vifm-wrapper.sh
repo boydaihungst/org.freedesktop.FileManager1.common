@@ -11,7 +11,11 @@
 # Read more here: https://www.freedesktop.org/wiki/Specifications/file-manager-interface/
 
 BDUS_METHOD="$1"
-shift 1 # skip BDUS_METHOD
+TERMCMD=${TERMCMD:-$2}
+if [ "$TERMCMD" == "_null_" ]; then
+  unset TERMCMD
+fi
+shift 2 # skip BDUS_METHOD and TERMCMD
 
 quote_string() {
   local input="$1"
@@ -19,27 +23,27 @@ quote_string() {
 }
 
 cmd="/usr/bin/vifm"
-termcmd="${TERMCMD:-/usr/bin/kitty --class nnn}"
+termcmd="${TERMCMD:-/usr/bin/kitty --class vifm --}"
 
 case "$BDUS_METHOD" in
 "ShowFolders")
   for folder in "$@"; do
     decoded_arg=$(printf '%b' "${folder//%/\\x}")
-    eval "$termcmd -- $cmd $(quote_string "$decoded_arg")" &
+    eval "$termcmd $cmd $(quote_string "$decoded_arg")" &
     disown
   done
   ;;
 "ShowItems")
   for file in "$@"; do
     decoded_arg=$(printf '%b' "${file//%/\\x}")
-    eval "$termcmd -- $cmd --select $(quote_string "$decoded_arg")" &
+    eval "$termcmd $cmd --select $(quote_string "$decoded_arg")" &
     disown
   done
   ;;
 "ShowItemProperties")
   for file in "$@"; do
     decoded_arg=$(printf '%b' "${file//%/\\x}")
-    eval "$termcmd -- $cmd --select $(quote_string "$decoded_arg")" &
+    eval "$termcmd $cmd --select $(quote_string "$decoded_arg")" &
     disown
   done
   ;;

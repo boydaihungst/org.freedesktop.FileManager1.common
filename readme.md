@@ -54,44 +54,46 @@ Copy `/usr/local/share/org.freedesktop.FileManager1.common/config` to `$HOME/.co
 Edit the `config` file to set your preferred file manager applications.
 If config isn't in `$HOME/.config/org.freedesktop.FileManager1.common/` this d-bus service won't work
 
-For terminal emulator. You can set the `TERMCMD` environment variable instead of edit wrapper file. By default wrappers
+For terminal emulator. You can set the `TERMCMD` environment variable in .bashrc, .profile or directly set it in in config file. By default wrappers
 is placed at `/usr/local/share/org.freedesktop.FileManager1.common/`
 
 Example:
 
-- `$HOME/.profile`
-- `.bashrc`
+- In `$HOME/.config/org.freedesktop.FileManager1.common/config`  
+  Use ranger wrapper instead of yazi wrapper:
+  NOTE: TERMCMD without quote.
+
+Make sure wrapper file exist and has executable permission.
+
+```conf
+cmd=/usr/local/share/org.freedesktop.FileManager1.common/ranger-wrapper.sh
+TERMCMD=wezterm start --always-new-process
+```
+
+- In `$HOME/.profile`, or `$HOME/.bashrc`
 
 ```sh
 # use wezterm intead of kitty
 export TERMCMD="wezterm start --always-new-process"
 ```
 
-- `$HOME/.config/org.freedesktop.FileManager1.common/config`
-  Use ranger wrapper instead of yazi wrapper:
+More examples:
 
-```conf
-cmd=/usr/local/share/org.freedesktop.FileManager1.common/ranger-wrapper.sh
+```
+TERMCMD=ghostty -e
+TERMCMD=wezterm start --always-new-process
+TERMCMD=foot
+TERMCMD=alacritty -e
+TERMCMD=alacritty --title "File-selector" -e
 ```
 
 ### Start and Restart systemd service
 
-NOTE: You don't need to enable or start dbus sevice.
-
-Exit the `org.freedesktop.FileManager1` service:
-
-    dbus-send --dest=org.freedesktop.FileManager1 --print-reply /org/freedesktop/FileManager1 org.freedesktop.FileManager1.Exit
-
-    or
-
-    > [!NOTE]
-    > gdbus need glib2:
-    gdbus call --session --dest org.freedesktop.FileManager1 --object-path /org/freedesktop/FileManager1 --method org.freedesktop.FileManager1.Exit
+NOTE: You don't need to enable or start any sevice. It will start automatically when needs.
 
 ### Start and Restart Without Systemd (elogind or basu)
 
-The binary file can run like a normal cli app. It's either in `/usr/local/libexec` or `/usr/libexec`.
-
+The binary file can run like a normal cli app. It's either in `/usr/local/libexec` or `/usr/libexec`.  
 Run `/usr/local/libexec/file_manager_dbus & && disown` directly in .bashrc or .zshrc or whatever shell you use.
 
 Or run directly via window manager:
@@ -110,47 +112,71 @@ Or run directly via window manager:
 
 ### Test
 
-    touch ~/Videos/sample_file.txt ~/Downloads/sample_file2.txt
+```bash
+touch ~/Videos/sample_file.txt ~/Downloads/sample_file2.txt
+```
 
 ShowFolders:
 
-    gdbus call --session \
-          --dest org.freedesktop.FileManager1 \
-          --object-path /org/freedesktop/FileManager1 \
-          --method org.freedesktop.FileManager1.ShowFolders \
-          "[\"file://~/Videos\", \"file://~/Downloads\"]"
-
+```bash
+gdbus call --session \
+        --dest org.freedesktop.FileManager1 \
+        --object-path /org/freedesktop/FileManager1 \
+        --method org.freedesktop.FileManager1.ShowFolders \
+        "[\"file://~/Videos\", \"file://~/Downloads\"]"
+```
 ShowItems:
 
-    gdbus call --session \
-          --dest org.freedesktop.FileManager1 \
-          --object-path /org/freedesktop/FileManager1 \
-          --method org.freedesktop.FileManager1.ShowItems \
-          "[\"file://~/Videos/sample_file.txt\", \"file://~/Downloads/sample_file2.txt\"]"
+```bash
+gdbus call --session \
+        --dest org.freedesktop.FileManager1 \
+        --object-path /org/freedesktop/FileManager1 \
+        --method org.freedesktop.FileManager1.ShowItems \
+        "[\"file://~/Videos/sample_file.txt\", \"file://~/Downloads/sample_file2.txt\"]"
+```
 
 ShowItemProperties:
 
-    gdbus call --session \
-          --dest org.freedesktop.FileManager1 \
-          --object-path /org/freedesktop/FileManager1 \
-          --method org.freedesktop.FileManager1.ShowItemProperties \
-          "[\"file://~/Videos/sample_file.txt\", \"file://~/Downloads/sample_file2.txt\"]"
+```bash
+gdbus call --session \
+        --dest org.freedesktop.FileManager1 \
+        --object-path /org/freedesktop/FileManager1 \
+        --method org.freedesktop.FileManager1.ShowItemProperties \
+        "[\"file://~/Videos/sample_file.txt\", \"file://~/Downloads/sample_file2.txt\"]"
+```
 
 #### Troubleshooting
 
-- After editing config file, restart its service. Check #restart-service section
+- If you edit `config` file or wrapper script, then use this command to reload the `org.freedesktop.FileManager1` service:
+
+```bash
+dbus-send --dest=org.freedesktop.FileManager1 --print-reply /org/freedesktop/FileManager1 org.freedesktop.FileManager1.Exit
+```
+
+or
+
+```bash
+gdbus call --session --dest org.freedesktop.FileManager1 --object-path /org/freedesktop/FileManager1 --method org.freedesktop.FileManager1.Exit
+```
+
+> [!IMPORTANT]
+> gdbus need glib2:
 
 - This app can also be lauch without systemd:
 
-      dbus-send --dest=org.freedesktop.FileManager1 --print-reply /org/freedesktop/FileManager1 org.freedesktop.FileManager1.Exit
-      /usr/local/libexec/file_manager_dbus
+```bash
+dbus-send --dest=org.freedesktop.FileManager1 --print-reply /org/freedesktop/FileManager1 org.freedesktop.FileManager1.Exit
+/usr/local/libexec/file_manager_dbus
+```
+or, if it says file/folder not found:
 
-  or, if it says file/folder not found:
+```bash
+dbus-send --dest=org.freedesktop.FileManager1 --print-reply /org/freedesktop/FileManager1 org.freedesktop.FileManager1.Exit
+/usr/lib64/usr/local/libexec/file_manager_dbus
+```
 
-      dbus-send --dest=org.freedesktop.FileManager1 --print-reply /org/freedesktop/FileManager1 org.freedesktop.FileManager1.Exit
-      /usr/lib64//usr/local/libexec/file_manager_dbus
-
-  This way the output from the wrapper scripts (e.g. `ranger-wrapper.sh`) will be written to the terminal. This is handy for debugging custom wrapper.
+This way the output from the wrapper scripts (e.g. `ranger-wrapper.sh`) will be written to the terminal.  
+This is handy for debugging custom wrapper.
 
 ## Usage
 
@@ -159,10 +185,6 @@ Firefox based browsers have a setting in `about:config` to always use dbus file 
 Open Download manager panel -> press `Show in folder` icon
 
 Chromium based browser Open Download manager (Ctrl + J) -> press `Show in folder` icon
-
-## Documentation
-
-NONE
 
 ## License
 
