@@ -12,6 +12,7 @@
 #include <systemd/sd-bus.h>
 #elif HAVE_LIBELOGIND
 #include <elogind/sd-bus.h>
+#include <errno.h>
 #elif HAVE_BASU
 #include <basu/sd-bus.h>
 #endif
